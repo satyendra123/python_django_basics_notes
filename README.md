@@ -1,7 +1,6 @@
 # python_django_basics_notes
 python django rest framework
 
-
 '''
 NOTE- 1. serializers= jab hum database se data ko fetch karte hai aur us data ko python data me convert karte hai to ise hum serializers kahte hai. databas ke data ko hum complex data kahte hai so 
                                   in other words complex data ko python data me convert karna ho to hume serializers ka use karte hai
@@ -55,6 +54,8 @@ get_data(1)
 
 Note- so humne abhi tak upar jo kuch bhi study kiya hai uske upar ek simple sa crud operation hum perform karke dekhte hai python django rest_framework me
 
+Step-0 django-admin startproject crudapp. aur isme hum apna ek application banayenge enroll name se so python manage.py startapp enroll
+
 Step-1 isme hum ek Student name ka table banate hai. aur iske bad hum python manage.py makemigrations and python manage.py migrate ye do command run karenge jisse ki humara table database me create ho jaye
 models.py
 from django.db import models
@@ -64,4 +65,99 @@ class Student(models.Model):
     roll = models.IntegerField()
     city = models.CharField(max_length=100)
 
+Step-2 serializers.py is serializer ka kaam ye hota hai ki jb bhi hum database se data fetch karte hai to uske bad hume is data ko python data me convert karna padhta hai to waha pass ye serializers.py ka kaam aata hai
 
+from rest_framework import serializers
+from .models import Student
+class StudentSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=100)
+    roll = serializers.IntegerField()
+    city = serializers.CharField(max_length=100)
+    def create(self, validated_data):
+       return Student.objects.create(**validated_data)
+       
+#The create method in a serializer is a hook that allows you to customize how a new instance of the associated model is created when you use the serializer to create an object.
+#data ko insert karne ke liye hume ye create function banana hi padhta hai
+
+Step-3 urls.py
+from django.urls import path
+from enroll import views
+
+urlpatterns = [
+    path('stuinfo/', views.student_detail),
+    path('stuinfo/<int:pk>/', views.student_dynamic_data),
+    path('stuinfoall/', views.student_list),
+    path('stucreate/', views.student_create),
+]
+
+Step-4 views.py
+from django.shortcuts import render
+from .models import Student
+# Create your views here.
+# yaha hume jo humara complex data type hai jaise database ka data use hume convert karna hai python object me aur python object se use convert karna hai json me
+#model object- single student data
+from .serializers import StudentSerializer
+from rest_framework.renderers import JSONRenderer
+from django.http import HttpResponse, JsonResponse
+import io
+from rest_framework.parsers import JSONParser
+from django.views.decorators.csrf import csrf_exempt
+
+def student_detail(request):
+    stu = Student.objects.get(id=1)       # ye humne database se data nikal liya means uska ek object bana liya. ye humara complex data hai
+    print(stu)
+    serializer = StudentSerializer(stu) # serializer humare complex data ko python data me convert kar deta hai
+    print(serializer)
+    json_data = JSONRenderer().render(serializer.data) # python data ko humne json me convert kar diya hai
+    print(json_data)
+    return HttpResponse(json_data, content_type='application/json')
+
+#note- isme humne ek aur value le liya hai request me jo ki urls se aayegi. agar pk=1 aaya means ki id=1 ki value fetch karega. aur agar pk=2 hoga to id=2 ki value fetch karega
+# aur humne isme direct jsonResponse ka use kiya hai. isse hume kya hota hai ki python data ko phir json me convert karne ka aur use return karne ka code nahi likhna padhega kyuki ye dono kaam ye akele hi kar deta hai 
+def student_dynamic_data(request,pk):
+    stu = Student.objects.get(id=pk)       # ye humne database se data nikal liya means uska ek object bana liya. ye humara complex data hai
+    print(stu)
+    serializer = StudentSerializer(stu) # serializer humare complex data ko python data me convert kar deta hai
+    print(serializer)
+    #json_data = JSONRenderer().render(serializer.data) # python data ko humne json me convert kar diya hai
+    #print(json_data)
+   # return HttpResponse(json_data, content_type='application/json')
+    return JsonResponse(serializer.data)
+
+# EXAMPLE-3 this is a queryset means we are fetching complete data from the database. in this case we need to pass this many=True as a parameter in the serializer
+def student_list(request):
+    stu = Student.objects.all()       # ye humne database se data nikal liya means uska ek object bana liya. ye humara complex data hai
+    print(stu)
+    serializer = StudentSerializer(stu, many=True) # serializer humare complex data ko python data me convert kar deta hai
+    print(serializer)
+    json_data = JSONRenderer().render(serializer.data) # python data ko humne json me convert kar diya hai
+    print(json_data)
+    return HttpResponse(json_data, content_type='application/json')
+
+# EXAMPLE-4 this will inserting the data into the database
+@csrf_exempt
+def student_create(request):
+    if request.method == "POST":
+        json_data = request.body
+        stream = io.BytesIO(json_data)
+        pythondata = JSONParser().parse(stream)
+        serializer = StudentSerializer(data=pythondata)
+        if serializer.is_valid():
+            serializer.save()
+            res = {'msg': "Data Created"}
+            json_data = JSONRenderer().render(res)
+            return HttpResponse(json_data, content_type="application/json")
+        json_data = JSONRenderer().render(serializer.errors)
+        return HttpResponse(json_data, content_type="application/json")
+            
+Step-5 main urls.py
+from django.contrib import admin
+from django.urls import path, include
+from enroll import views
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('enroll/', include('enroll.urls')),
+    path('auth/', include('authentication.urls')), 
+
+]
