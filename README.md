@@ -161,3 +161,31 @@ urlpatterns = [
     path('auth/', include('authentication.urls')), 
 
 ]
+
+Step-6 myapp.py '''
+import requests
+import json
+url = 'http://127.0.0.1:8000/enroll/stucreate/'
+data = {
+    'name': 'Mohinee',
+    'roll': 101,
+    'city': 'Rajshahi',
+}
+json_data=json.dumps(data)
+r=requests.post(url=url,data=json_data)
+print(r)
+'''
+
+import requests
+import json
+URL = 'http://example.com/api'
+def get_data(id=None):
+    data = {}                            #this is my dictionary
+    if id is not None:
+        data = {'id': id}
+        json_data = json.dumps(data)    # this will convert the python data to json data so that we can pass the id data to request.get method so that i will get the response based on the id from the sql
+        r = requests.get(url = URL, data=json_data) 
+        data = r.json()
+        print(data)
+        
+get_data(1)
