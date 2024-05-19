@@ -52,3 +52,16 @@ def get_data(id=None):
         
 get_data(1)
 '''
+
+Note- so humne abhi tak upar jo kuch bhi study kiya hai uske upar ek simple sa crud operation hum perform karke dekhte hai python django rest_framework me
+
+Step-1 isme hum ek Student name ka table banate hai. aur iske bad hum python manage.py makemigrations and python manage.py migrate ye do command run karenge jisse ki humara table database me create ho jaye
+models.py
+from django.db import models
+# Create your models here.
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    roll = models.IntegerField()
+    city = models.CharField(max_length=100)
+
+
