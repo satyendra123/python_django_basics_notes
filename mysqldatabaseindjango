@@ -1,0 +1,13 @@
+Step-1 how to use the mysql database in python django
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'authentication',
+        'USER': 'root',
+        'PASSWORD': '',
+        'HOST': 'localhost',  # Set to 'localhost' if the database is on the same machine
+        'PORT': '3306',                # Default MySQL port
+    }
+}
+use it in your settings.py to use the mysql database in python django
+
