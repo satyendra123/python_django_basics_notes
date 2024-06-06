@@ -247,4 +247,4 @@ Step-9  python manage.py makemigrations
 Step-10 so ab agar hum url ko open krenge http://127.0.0.1:8000/api/students/ to ye humse username aur passdword puchega to hum wahi denge isme jo humne python manage.py createsuperuser
  se banaya tha wahi username aur password denge hum yaha pass.
 
-Step-11 isme hum apna khud ka react js ka code bhi likh dete hai
+Step-11 isme humne superuser create kiya hai simply sattu and password Sattu
