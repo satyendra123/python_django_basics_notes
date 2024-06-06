@@ -1,0 +1,88 @@
+# so in this we will not make the new table for storing the student details like id, username and password. we already have the table auth_user in which we have all the details username, hash_password, is_admin everything in it. so means we need not to make the
+models.py and serializers.py code because we wll not make any new table for storing the users username and password
+
+#step-1 authentication/views.py
+from django.contrib.auth import authenticate
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.authentication import BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
+
+class LoginView(APIView):
+    authentication_classes = [BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            return Response({"message": "Login successful"})
+        else:
+            return Response({"message": "Invalid credentials"}, status=400)
+
+#step-2 authentication/urls.py
+from django.urls import path
+from .views import LoginView
+
+urlpatterns = [
+    path('login/', LoginView.as_view()),
+]
+
+#step-3 main urls.py 
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('api/', include('authentication.urls')),  # Include the URLs from the 'authentication' app
+]
+
+#step-4 react fronted code Components/Login.js
+import React, { useState } from 'react';
+import axios from 'axios';
+
+function Login() {
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await axios.post('http://localhost:8000/api/login/', {
+                username: username,
+                password: password
+            });
+            console.log('Login successful');
+        } catch (error) {
+            console.error('Login error:', error);
+        }
+    };
+
+    return (
+        <form onSubmit={handleSubmit}>
+            <input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
+            <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
+            <button type="submit">Login</button>
+        </form>
+    );
+}
+
+export default Login;
+
+Step-5 App.js
+
+import React from 'react';
+import Login from './Login';
+
+function App() {
+    return (
+        <div className="App">
+            <h1>Login Form</h1>
+            <Login />
+        </div>
+    );
+}
+
+export default App;
+
