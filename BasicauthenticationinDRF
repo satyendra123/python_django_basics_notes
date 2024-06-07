@@ -1,3 +1,5 @@
+1) BasicAuthentication
+
 Step-1 django-admin startproject authentication
        cd authentication
        python manage.py createapp basicauthentication
@@ -247,4 +249,11 @@ Step-9  python manage.py makemigrations
 Step-10 so ab agar hum url ko open krenge http://127.0.0.1:8000/api/students/ to ye humse username aur passdword puchega to hum wahi denge isme jo humne python manage.py createsuperuser
  se banaya tha wahi username aur password denge hum yaha pass.
 
-Step-11 isme humne superuser create kiya hai simply sattu and password Sattu
+Step-11 isme humne superuser create kiya hai simply sattu and password Sattu. so agar mai postman se hit maru http://127.0.0.1:8000/api/students/ isme hum authorisation me jayenge aur basic auth ko select kar lenge.
+        aur BasicAuth ko select kar lenge. aur body me hum kuch bhi nahi likhenge aur get request krenge to hume sara data dikhne lag jayega
+
+
+b) SessionAuthentication
+#Note- so session authentication me agar user login hai to us session ke dauran hi wo CRUD operation ko perform kar sakte hai otherwise wo perform nahi kar sakta hai
+so is chiz ke liye hume apne urls.py me path dena hoga kuch is tarike se path('auth/',rest_framework) so ye likhne se humara ek login button show hone lagega
+
