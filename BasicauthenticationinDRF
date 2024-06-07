@@ -177,6 +177,8 @@ class Student(models.Model):
 Step-5 basicauthentication/Serializers.py
 
 # basicauthentication/serializers.py
+
+# basicauthentication/serializers.py
 from rest_framework import serializers
 from .models import Student  # Replace with your actual model
 from django.contrib.auth.models import User
@@ -187,7 +189,7 @@ class StudentSerializer(serializers.ModelSerializer):
         model = Student
         fields = '__all__'
 
-#isme humne ek aur class banaya hai jo option dega ki superuser jo hai wo apna password change kar sakta hai. so humne koi alag se table nahi banaya hai jo purana wala table tha humara auth_user ka uska hi use kiya hai koi alag se table nahi banaya hai
+#isme humne ek aur class banaya hai jo option dega ki superuser jo hai wo apna password change kar sakta hai
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True)
@@ -196,7 +198,6 @@ class ChangePasswordSerializer(serializers.Serializer):
         if not check_password(value, self.context['request'].user.password):
             raise serializers.ValidationError("Incorrect old password")
         return value
-
 
 Step-6 basicauthentication/urls.py
 
@@ -214,6 +215,7 @@ urlpatterns = [
     path('', include(router.urls)),
     path('changepassword/', ChangePasswordView.as_view(), name='change_password'),
 ]
+
 
 Step-7 basicauthentication/views.py
 
