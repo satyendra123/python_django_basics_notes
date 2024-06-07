@@ -179,17 +179,30 @@ Step-5 basicauthentication/Serializers.py
 # basicauthentication/serializers.py
 from rest_framework import serializers
 from .models import Student  # Replace with your actual model
+from django.contrib.auth.models import User
+from django.contrib.auth.hashers import check_password
 
 class StudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
         fields = '__all__'
 
+#isme humne ek aur class banaya hai jo option dega ki superuser jo hai wo apna password change kar sakta hai. so humne koi alag se table nahi banaya hai jo purana wala table tha humara auth_user ka uska hi use kiya hai koi alag se table nahi banaya hai
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+
+    def validate_old_password(self, value):
+        if not check_password(value, self.context['request'].user.password):
+            raise serializers.ValidationError("Incorrect old password")
+        return value
+
+
 Step-6 basicauthentication/urls.py
 
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import StudentModelViewSet
+from .views import StudentModelViewSet, ChangePasswordView
 
 # Creating Router object
 router = DefaultRouter()
@@ -199,26 +212,24 @@ router.register('students', StudentModelViewSet, basename='students')
 urlpatterns = [
     # Include router URLs
     path('', include(router.urls)),
+    path('changepassword/', ChangePasswordView.as_view(), name='change_password'),
 ]
 
 Step-7 basicauthentication/views.py
 
+'''
 from rest_framework import viewsets
 from .models import Student
-from .Serializers import StudentSerializer
+from .Serializers import StudentSerializer, ChangePasswordSerializer
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 
 class StudentModelViewSet(viewsets.ModelViewSet):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
-    #authentication_classes = [BasicAuthentication]
-    #permission_classes = [IsAuthenticated]
-
     #NOTE- agar to humne settings.py me add kar diya hai to hume yaha pass kuch bhi likhne ki jarurat nahi hai authentication ke liye kyuki settings.py me likhne par wo globally hi lene lag jata hai bydefault sabhi api ke liye
     # lekin agar humne settings.py me add nahi kiya hai to hume yaha likhna padhega sabhi class ke niche kuch is tarah se jaise maine upar likhakar use comment kar diya hai
     
-    '''
     class StudentModelViewSet2(viewsets.ModelViewSet):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
@@ -230,7 +241,35 @@ class StudentModelViewSet(viewsets.ModelViewSet):
     serializer_class = StudentSerializer
     #authentication_classes = [BasicAuthentication]
     #permission_classes = [IsAuthenticated]
+
 '''
+
+from rest_framework import viewsets
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.contrib.auth.models import User
+from django.contrib.auth.hashers import make_password
+from .models import Student
+from .Serializers import StudentSerializer, ChangePasswordSerializer
+from rest_framework.permissions import IsAuthenticated
+
+class StudentModelViewSet(viewsets.ModelViewSet):
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
+
+class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = ChangePasswordSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            user = request.user
+            user.set_password(serializer.validated_data['new_password'])
+            user.save()
+            return Response({'message': 'Password changed successfully'}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 Step-8 main urls.py
 
@@ -252,7 +291,7 @@ Step-10 so ab agar hum url ko open krenge http://127.0.0.1:8000/api/students/ to
 Step-11 isme humne superuser create kiya hai simply sattu and password Sattu. so agar mai postman se hit maru http://127.0.0.1:8000/api/students/ isme hum authorisation me jayenge aur basic auth ko select kar lenge.
         aur BasicAuth ko select kar lenge. aur body me hum kuch bhi nahi likhenge aur get request krenge to hume sara data dikhne lag jayega. agar to mai database me jakar delete kar du user_auth table ke data ko jisme mera superuser ka username aur password 
         store hota hai aur uske bad agar mai http://127.0.0.1:8000/api/students/ isme access krta hu to mujhe username aur password dalne ke liye bola jayega isme. so ab mai ek new create krta hu superuser aur uska phir mai isme dalunga to mujhe access milega
-python manage.py createsuperuser username: sattu, email: Singhsatyendra885@gmail.com and password: Sattu
+python manage.py createsuperuser username: sattu, email: Singhsatyendra885@gmail.com and password: Sattu123
 
 b) SessionAuthentication
 #Note- so session authentication me agar user login hai to us session ke dauran hi wo CRUD operation ko perform kar sakte hai otherwise wo perform nahi kar sakta hai
