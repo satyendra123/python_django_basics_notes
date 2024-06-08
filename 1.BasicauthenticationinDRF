@@ -184,10 +184,22 @@ from .models import Student  # Replace with your actual model
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import check_password
 
+#ye humne banaya hai jisme humne students ka kuch data save karakar rakha hai
 class StudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
         fields = '__all__'
+
+#ye serializer jo hai humara wo superuser create krega means username, email and password se
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password']
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        user = User.objects.create_user(**validated_data)
+        return user
 
 #isme humne ek aur class banaya hai jo option dega ki superuser jo hai wo apna password change kar sakta hai
 class ChangePasswordSerializer(serializers.Serializer):
@@ -198,6 +210,9 @@ class ChangePasswordSerializer(serializers.Serializer):
         if not check_password(value, self.context['request'].user.password):
             raise serializers.ValidationError("Incorrect old password")
         return value
+
+class CustomPasswordResetSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
 
 Step-6 basicauthentication/urls.py
 
