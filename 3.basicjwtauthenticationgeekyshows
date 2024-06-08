@@ -26,13 +26,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'rest_framework',
+    'rest_framework_simplejwt',
     'account',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -163,7 +166,14 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
 
-#Step-2 urls.py code 
+PASSWORD_RESET_TIMEOUT=900          # 900 Sec = 15 Min
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+#Step-2 main urls.py code 
 from django.contrib import admin
 from django.urls import path, include
 from account import views
@@ -183,6 +193,8 @@ urlpatterns = [
     path('refreshtoken/', TokenRefreshView.as_view(), name='token_refresh_view'),
     path('verifytoken/', TokenVerifyView.as_view(), name='token_verify_view'),
 ]
+
+
 
 #NOTE- now i am checking how will i test it using the postman so to test it 
 1) first of all we will generate the token 
