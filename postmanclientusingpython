@@ -56,7 +56,6 @@ update_data()
 
 
 #DJANGO REST FRAMEWORK SERVR SIDE CODE
-# GET request
 
 from django.shortcuts import render
 import io
