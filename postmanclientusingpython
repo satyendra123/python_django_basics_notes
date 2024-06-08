@@ -62,7 +62,11 @@ import io
 from rest_framework.Parsers import JSONParser
 from .models import Student
 from .serializer import StudentSerializer
-from django.http import HttpResponse
+from rest_framework.renderers import JsonRenderer
+from django.http import HttpResponse, JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
 def student_api(request):
    if request.method = 'GET':
       json_data = request.body    # client se ya post man se jo bhi data aayega wo ek json ke roop me rhega to hume us data ko complex data me convert krna rahega
