@@ -1,22 +1,136 @@
 #step-1 CRUD OPERATION. means mai chahta hu ki mai khud ka apna ek client banaunga jo server(django) ko data send karega aur waha se jo kuch bhi response aayega hum use yaha par print kara denge. so basically mai chahta hu
 ki agar mai only get_data() function call krunga to mujhe sara data mile aur agar mai get_data(1)  karu to id=1 wala data mile hume database se. ye chiz to humara server side ka code ho gaya.
 
+# 1) GET REQUEST for reading the data
+import request     // request ko import krenge kyuki ye madad karega get, post, put, delete requests
+URL="http://127.0.0.1:8000/studentapi/"             // yaha hum apne server ka url denge jisse ki data jayega client se server me
+def get_data(id=None):      // humne ek function banaya hai, means agar to function ko call krte samay usme data dalenge to wo id me aayega aur agar koi data bhi nahi send karenge to wo None lega
+  data={}                   // agar id me kuch nahi aayega to humne ek empty dictionary bana liya hai jab id me kuch nahi aayega to yahi data jayega
+if id is not None:          // aur agar id none nahi hoga means id me koi value hoga to hum data dictionary me wo id daal denge
+  data={'id':id}            // yaha pass humne data dictionary me id data daal diya hai
+  json_data = json.dumps(data) // humne yaha pass json.dumps method ka use kiya hai means jo dictionary data ko convert karta hai json_data me 
+  r= request.get(url=URL, data=json_data) // humne yaha pass get request ko send kar diya hai aur waha se jo kuch bhi response aayega wo humne r variable me rakh liya hai
+  data = r.json()         // .json method jo hai humare json data ko python data dictionary me convert kar deta hai
+  print(data)             // aur hum apne dictionary data ko print kara lenge
 
+get_data()
+  
+# 2) POST REQUEST
+import request     // request ko import krenge kyuki ye madad karega get, post, put, delete requests
+URL=""             // yaha hum apne server ka url denge jisse ki data jayega client se server me
+data = {'name':'Ram', 'roll'=104, 'city'='Bokaro'}          // yaha pass humne data dictionary me id data daal diya hai
+json_data = json.dumps(data) // humne yaha pass json.dumps method ka use kiya hai means jo dictionary data ko convert karta hai json_data me 
+r= request.post(url=URL, data=json_data) // humne yaha pass get request ko send kar diya hai aur waha se jo kuch bhi response aayega wo humne r variable me rakh liya hai
+data = r.json()         // .json method jo hai humare json data ko python data dictionary me convert kar deta hai
+print(data)             // aur hum apne dictionary data ko print kara lenge
+
+
+post_data()
+
+# 3) DELETE REQUEST
 
 import request
 URL=""
-
-def get_data(id=None):
-  
-
-
-
-
-
-
-
+def delete_data(id = None):
+    data={}
+if id is not none:
+   data = {'id'=id}   
+   json_data = json.dumps(data)
+   r = request.delete(url=URL, data=json_data)
+   
+delete_data(1)
 
 
+# 4) UPDATE DATA
+import request
+URL=""
+def update_data():
+   data={'id':2, 'name':'jack','city':'Ranchi'}
+   json_data = json.dumps(data)
+   r = requests.put(url = URL, data = json_data)
+   data = r.json()
+   print(data)
+
+update_data()
 
 
-get_data()
+
+#DJANGO REST FRAMEWORK SERVR SIDE CODE
+# GET request
+
+from django.shortcuts import render
+import io
+from rest_framework.Parsers import JSONParser
+from .models import Student
+from .serializer import StudentSerializer
+from django.http import HttpResponse
+def student_api(request):
+   if request.method = 'GET':
+      json_data = request.body    # client se ya post man se jo bhi data aayega wo ek json ke roop me rhega to hume us data ko complex data me convert krna rahega
+      stream = io.ByteIO(json_data)  # json_data ko ye complex data me convert krna hai to io.ByteIO() method se stream banayenge aur phir hum JSONParser().Parse(stream) method me stream pass kar denge to hume complex data milega
+      pythondata = JSONParser().parse(stream)  # 
+      id = pythondata.get('id',None)  # complex data se hum id ko nikal lenge aur check krenge ki id me data hai bhi yaa nahi aur agar hai to database se data fetch kar lenge
+      if id is not None:
+         stu = Student.objects.get(id=id) # fetch the data from the database
+         serializer = StudentSerializer(stu)
+         json_data = JSONRenderer().render(serializer.data)
+         return HttpResponse(json_data, content_type='application/json')
+
+      stu = Student.object.all()                                # agar id send nahi kiya hoga client to hume complete data send karna chahte hai client ko apne server se
+      serializer = StudentSerializer(stu, many=True)
+      json_data = JSONRenderer().render(serializer.data)
+      return HttpResponse(json_data, content_type='application/json')
+
+
+     if request.method = 'POST':
+        json_data = request.body    # client se ya post man se jo bhi data aayega wo ek json ke roop me rhega to hume us data ko complex data me convert krna rahega
+        stream = io.ByteIO(json_data)  # json_data ko ye complex data me convert krna hai to io.ByteIO() method se stream banayenge aur phir hum JSONParser().Parse(stream) method me stream pass kar denge to hume complex data milega
+        pythondata = JSONParser().parse(stream)   
+        serializer = StudentSerializer(data = pythondata)
+        if serializer.is_valid():
+           serializer.save()
+           res = {'msg':'Data Created'}
+           json_data = JSONRenderer().render(res)
+           return HttpResponse(json_data, content_type='application/json')
+
+        json_data = JSONRenderer().render(serializers.errors)
+        return HttpResponse(json_data, content_type='application/json')
+
+
+     if request.method = 'PUT':
+        json_data = request.body    # client se ya post man se jo bhi data aayega wo ek json ke roop me rhega to hume us data ko complex data me convert krna rahega
+        stream = io.ByteIO(json_data)  # json_data ko ye complex data me convert krna hai to io.ByteIO() method se stream banayenge aur phir hum JSONParser().Parse(stream) method me stream pass kar denge to hume complex data milega
+        pythondata = JSONParser().parse(stream)
+        id = pythondata.get('id')
+        stu = Student.objects.get(id=id)
+        serializer = StudentSerializer(stu, data = pythondata, partial=True)
+        if serializer.is_valid():
+           serializer.save()
+           res = {'msg':'Data Updated'}
+           json_data = JSONRenderer().render(res)
+           return HttpResponse(json_data, content_type='application/json')
+
+        json_data = JSONRenderer().render(serializers.errors)
+        return HttpResponse(json_data, content_type='application/json')
+
+
+# 4) DELETE REQUEST
+   if request.method = 'DELETE':
+      json_data = request.body    # client se ya post man se jo bhi data aayega wo ek json ke roop me rhega to hume us data ko complex data me convert krna rahega
+      stream = io.ByteIO(json_data)  # json_data ko ye complex data me convert krna hai to io.ByteIO() method se stream banayenge aur phir hum JSONParser().Parse(stream) method me stream pass kar denge to hume complex data milega
+      pythondata = JSONParser().parse(stream)  # 
+      id = pythondata.get('id',None)  # complex data se hum id ko nikal lenge aur check krenge ki id me data hai bhi yaa nahi aur agar hai to database se data fetch kar lenge
+      if id is not None:
+         stu = Student.objects.get(id=id) # fetch the data from the database
+         stu.delete()
+         res = {'msg':'Data Deleted'}
+         #json_data = JSONRenderer().render(res)
+         #return HttpResponse(json_data, content_type='application/json')
+          return JsonResponse(res, safe=False)
+
+#Note-   means agar hum HttpResponse se agar send karna chahte hai data ko to hume do lines ka code likhna padhta hai kyuki pahle hum jis data ko send karna chahte hai use json format me convert krte hai aur uske bad hum us data ko HttpResponse() method ke through send karte hai
+         #json_data = JSONRenderer().render(res)
+         #return HttpResponse(json_data, content_type='application/json')
+
+         lekin humare pass ek aur tarika hai JsonResponse() ka jo ki data ko json me convert bhi kar deta hai aur data ko send bhi kar deta hai
+         #return JsonResponse(res, safe=False)
