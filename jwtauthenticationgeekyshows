@@ -183,3 +183,18 @@ urlpatterns = [
     path('refreshtoken/', TokenRefreshView.as_view(), name='token_refresh_view'),
     path('verifytoken/', TokenVerifyView.as_view(), name='token_verify_view'),
 ]
+
+#NOTE- now i am checking how will i test it using the postman so to test it 
+1) first of all we will generate the token 
+a) sabse pahle hum postman ke body me jayenge aur x-www-form-urlencoded me jayenge aur humne jo create kiya hai superuser se uska username aur password dal denge usme. username:sattu aur password:Sattu
+b) http://localhost:8000/gettoken/ by doing the post request. so we will get the two tokens one is the access token and the other one is the refresh token generate hoga. in token me user ki id chhupa hota hai
+Note- we will get the data something like this 
+{
+    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTcxNzkxOTYyMCwiaWF0IjoxNzE3ODMzMjIwLCJqdGkiOiI3ZjFmZWNhYTU0ZmE0N2MyYjFlN2IzYmE4YzI3MjJiOSIsInVzZXJfaWQiOjF9.7vd03G4fVfWobqkgeFXoE49-c_C3DOAAS1gR4a8V76A",
+    "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzE3ODMzNTIwLCJpYXQiOjE3MTc4MzMyMjAsImp0aSI6IjhjMTlmMjIxODEwZTQ3NTA4NDEyMWM1MDZhYmM4Yzg3IiwidXNlcl9pZCI6MX0.4fdd1oVZ8v0yPb4XC71Sxbuk_8aJA09nChtsSR2KbGw"
+}
+
+2) iske bad mai login ho chuka hu mtlb so ab mai simply kya karunga ki request:GET aur url: http://localhost:8000/studentapi/ aur mai authorisation me jaunga aur token me apna refress token dal dunga quotes ko htakar eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzE3ODMzMzA2LCJpYXQiOjE3MTc4MzMwMDYsImp0aSI6IjAxZDQ2Y2IwZDNkNjRiZGQ4MWEyZjMxMzg4YzllMGY4IiwidXNlcl9pZCI6MX0.gmy8KS9TyrgnfRUG2TsYFpq-gJ1SMXGEco6-O-5KwiM kuch is tarah se
+   aur mai jaise hi get request krunga to mujhe access mil jayega aur mujhe data dikhne lag jayega
+
+
