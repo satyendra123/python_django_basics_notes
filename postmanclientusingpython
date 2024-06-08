@@ -1,0 +1,22 @@
+#step-1 CRUD OPERATION. means mai chahta hu ki mai khud ka apna ek client banaunga jo server(django) ko data send karega aur waha se jo kuch bhi response aayega hum use yaha par print kara denge. so basically mai chahta hu
+ki agar mai only get_data() function call krunga to mujhe sara data mile aur agar mai get_data(1)  karu to id=1 wala data mile hume database se. ye chiz to humara server side ka code ho gaya.
+
+
+
+import request
+URL=""
+
+def get_data(id=None):
+  
+
+
+
+
+
+
+
+
+
+
+
+get_data()
