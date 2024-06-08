@@ -194,7 +194,50 @@ urlpatterns = [
     path('verifytoken/', TokenVerifyView.as_view(), name='token_verify_view'),
 ]
 
+#step-3 account/views.py
+from django.shortcuts import render
 
+# Create your views here.
+from .models import Student
+from .serializers import StudentSerializer
+from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
+class StudentModelViewSet(viewsets.ModelViewSet):
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated] 
+
+#step-4 account/serializers.py
+from rest_framework import serializers
+from .models import Student  # Replace with your actual model
+from django.contrib.auth.models import User
+from django.contrib.auth.hashers import check_password
+
+class StudentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Student
+        fields = '__all__'
+
+#step-5 account/models.py
+from django.db import models
+
+class Student(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255)
+    roll = models.IntegerField(unique=True)
+    email = models.EmailField(unique=True)
+    city = models.CharField(max_length=100, default='Unknown')
+
+#step-6 account/admin.py
+from django.contrib import admin
+from .models import Student
+# Register your models here.
+@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name', 'roll', 'email', 'city']
 
 #NOTE- now i am checking how will i test it using the postman so to test it 
 1) first of all we will generate the token 
