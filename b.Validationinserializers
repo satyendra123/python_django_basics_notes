@@ -1,0 +1,15 @@
+#Topic - Validation in serializers
+so basically hum 3 tarike se validate kar sakte hai (i) field level validation (ii) object level validation (iii) validators
+(i) field level validation- these are similar to the clean_fieldName method in django forms
+    validate_fieldName() method should returns the validated value or raise a serializers.ValidationError
+
+EX. 
+from rest_framework import serializers
+class StudentSerializer(serializers.Serializer)
+   name= serializer.CharField(max_length=100)
+   roll= serializer.IntegerField()
+   city= serializer.CharField(max_length=100)
+
+   def validate_roll(self, value):            # ye method jo hai automatically invoked hota hai jab bhi hum is_valid() method is called
+       if value>=200:
+          raise serialiserz.ValidationError('seat full')
