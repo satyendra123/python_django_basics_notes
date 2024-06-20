@@ -1,3 +1,18 @@
+postman testing real testing
+1) for registration= request = POST, url = http://127.0.0.1:8000/register/     , body={ "username": "satyam", "password": "S@tyam","email": "singhsatyam885@gmail.com","role":"admin"}
+   response = { "user": { "id": 19, "username": "satyam", "email": "singhsatyam885@gmail.com"}, "token": "d5c78e31f7263a7f95964075e219097ca116e7d8"}
+2) for login = request=POST,  url = http://127.0.0.1:8000/login/   , body= { "username": "Sagar", "password": "Sagar" }
+   response = { "token": "eaa9d04d72fd6116657b8439e85a42cb7fc03768", "user_id": 18, "email": "Sagar@gmail.com" }
+3) for logout = request=POST, url=http://127.0.0.1:8000/logout/
+4) for change password = request=POST, url=http://127.0.0.1:8000/change-password/ , body= { "old_password": "Sagar", "new_password": "Sagar123" }
+   response = "password change successfully"
+5) for reset password = request=POST, url=http://127.0.0.1:8000/reset-password/ , body= { "email": "Singhsatyendra885@gmail.com" }
+   response = "reset password link has been sent to your email"
+6) for reset password =  request=POST, url= http://127.0.0.1:8000/reset-password/MTc/c8x6n2-1615819800501fe6f38eade930768a5e/   , body={ "new_password1": "Sid123","new_password2": "Sid123"}
+    response = "password has been reset successfully"
+
+
+
 #Step-1 settings.py
 """
 Django settings for authentication project.
