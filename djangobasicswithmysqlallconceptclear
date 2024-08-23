@@ -1,0 +1,147 @@
+#views.py
+# crud/views.py
+
+'''
+basics of DRF(django rest framework) = ek bat humesa yad rkhna ki hume client ko humesa json format me data send karna hota hai aur postman se bhi jo aata hai data wo json format me hi hota hai. kyuki client jo ki basically html, css, js me likhe hota hai unhe dictionary ka data nahi show kara sakte kyuki dictionary to python me kewal use hota hai
+so hume sabse pahle drf me ye sikhna hota hai ki hum dictionary ko json me aur json ko dictionary me kaise convert kr sakte hai.
+
+dictionary: dictionary me jo key- value pair hota hai wo single quotes me hota hai jaise {'name':'rahul', 'roll':102, 'city':'jaipur'}
+
+data = {
+    "name": "Rahul",
+    "roll":102,
+    "city":"jaipur"
+}
+
+print(data)              o/p  = {'name':'rahul', 'roll':102, 'city':'jaipur'}   ye ayega output me kyuki humne ek dictionary ko print karaya hai
+
+json: json data jo hota hai uska key value pair double quotes me hota hai jaise {"name":"rahul", ''roll'':102, ''city'':''jaipur''}
+
+import json
+data = {
+    "name": "Rahul",
+    "roll":102,
+    "city":"jaipur"
+}
+
+json_data = json.loads(data)                                      => dictionary ko humne json me convert kar diya
+print(json_data)                                                                o/p = {"name":"rahul", ''roll'':102, ''city'':''jaipur''}
+data_dict = json.dumps(json_data)                                
+print(data_dict)                                                                  o/p  = {'name':'rahul', 'roll':102, 'city':'jaipur'} 
+
+dictionary to json = so basically json.dumps(data) ka use krenge hum (iska use hum tab krte hai jab hum khud ka request banayenge to hume chahiye ki jab ye DRF me pahuche to json me pahuche to hume apne dictionary ko json me convert karna hoga aur phir ise hum send karenge request.post() method ke jariye)
+json to dictionary = so basically json.loads(data) ka use krenge hum    (iska use hum tb krenge jab man lo ki postman se koi data aaya aur hum usme kuch operation karna chahte hai to apne python me to hume pahle us json data ko dictionary me convert karna padhega to hi hum aisa kar sakte hai)
+
+
+'''
+'''
+EX-0 in this we are not using any sort of serializer class. we directly make a dictionary and convert this dictionary to json using json.dumps. so hume data ko send karna hai bas to hum HttpResponse ka use karenge aur data ko send karenge
+
+from django.http import HttpResponse
+from .models import Student
+import json
+
+def student_detail(request):
+    stu = Student.objects.get(id=1)
+    print(stu)
+    data = {'id': stu.id,'name': stu.name,'roll': stu.roll,'city': stu.city }
+    json_data = json.dumps(data)
+    return HttpResponse(json_data, content_type="application/json")
+'''
+
+
+'''
+EX-1 in this we are not using any sort of serializer class. we directly make a dictionary and convert this dictionary to json and send it to the client
+
+from django.http import JsonResponse
+from .models import Student
+
+def student_detail(request):
+    stu = Student.objects.get(id=1)
+    print(stu)
+    data = {'id': stu.id,'name': stu.name,'roll': stu.roll,'city': stu.city}
+    print(data)
+    return JsonResponse(data)
+'''
+'''
+EX-2 in this we are not using any decorator. and we are using the serializer class. agar hum decorator ka use nahi krte hai to hume yaha par Response ka use nahi krenge balki JsonResponse ka use karenge
+
+from .serializers import StudentSerializer
+from django.http import JsonResponse
+from .models import Student
+from rest_framework.decorators import api_view
+
+def student_detail(request):
+    stu = Student.objects.get(id=1)
+    print(stu)
+    serializer = StudentSerializer(stu)
+    print(serializer)
+    print(serializer.data)
+    return JsonResponse(serializer.data)
+
+'''
+'''
+EX-3 in this we are not using any decorator. and we are using the serializer class. agar hum decorator ka use nahi krte hai to hume yaha par Response ka use karenge. kyuki Response jo hai wo json me convert karta hai aur phir data ko send karta hai. aur Response jo hai api decorator ke sath hi work karta hai
+
+from .serializers import StudentSerializer
+from .models import Student
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
+@api_view(["GET"])
+def student_detail(request):
+    stu = Student.objects.get(id=1)
+    print(stu)
+    serializer = StudentSerializer(stu)
+    print(serializer)
+    print(serializer.data)
+    return Response(serializer.data)  # This works now with @api_view decorator
+    
+'''
+
+'''
+#EX-4 isme hum data ko postman se send karenge aur us data ko isme receive karenge aur check krenge ki yah kaise kaam karta hai. so isme maine kya kiya ki mujhe postman se data aaya json format me aur  chuki ye json format me hai to ise mai directly response ke taur par send bhi kar de rha hu
+
+from django.http import JsonResponse
+from rest_framework.decorators import api_view
+from .models import Student
+@api_view(['POST'])
+def student_detail(request):
+    stu_id = request.data.get('id')
+    print(stu_id)
+    stu = Student.objects.get(id=stu_id)
+    data={'id':stu.id, 'name':stu.name}
+    return JsonResponse(data)
+    
+#### request code ####
+import requests
+data = {"id":1}
+response = requests.post("http://127.0.0.1:8000/stuinfo/",json=data)
+print(response.json())
+
+'''
+
+#step-2 models.py
+from django.db import models
+
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    roll = models.IntegerField()
+    city = models.CharField(max_length=100)
+
+#step-3 serializers.py
+from rest_framework import serializers
+
+class StudentSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=100)
+    roll = serializers.IntegerField()
+    city = serializers.CharField(max_length=100)
+
+#step-4 main_urls.py
+  from django.contrib import admin
+from django.urls import path
+from crud import views
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('stuinfo/', views.student_detail),
+]
